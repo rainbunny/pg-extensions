@@ -23,7 +23,7 @@ export class Pool extends PgPool implements ExtendedPool {
       const {log} = config;
       this.log = log;
     }
-    implementExecutor(this);
+    implementExecutor(this, this.log);
   }
 
   /** Execute transaction.
@@ -31,7 +31,7 @@ export class Pool extends PgPool implements ExtendedPool {
    */
   executeTransaction = async (transaction: (client: ExtendedPoolClient) => Promise<void>): Promise<void> => {
     const client = await this.connect();
-    const extendedClient = implementExecutor<ExtendedPoolClient>(client as ExtendedPoolClient);
+    const extendedClient = implementExecutor<ExtendedPoolClient>(client as ExtendedPoolClient, this.log);
     try {
       await extendedClient.query('BEGIN');
       await transaction(extendedClient);
