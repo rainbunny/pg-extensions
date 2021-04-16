@@ -12,7 +12,7 @@ export const executeQuery = async <T>(
   return src.query<T>(queryText, params).finally(() => {
     const duration = Date.now() - start;
     if (log) {
-      log(queryText, params, duration);
+      log({queryText, params, duration});
     }
   });
 };

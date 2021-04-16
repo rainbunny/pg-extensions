@@ -1,1 +1,1 @@
-export type Logger = (queryText: string, params: unknown[] | undefined, duration: number) => void;
+export type Logger = (message: string | {queryText: string; params: unknown[] | undefined; duration: number}) => void;
