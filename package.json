@@ -4,7 +4,6 @@
     "url": "https://github.com/rainbunny/pg-extensions/issues"
   },
   "dependencies": {
-    "lodash": "^4.17.21",
     "pg": "^8.5.1"
   },
   "description": "Add more functions into the original pg package",
