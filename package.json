@@ -56,7 +56,6 @@
     "postversion": "git push && git push --tags",
     "prepare": "yarn build",
     "prepublishOnly": "yarn validate",
-    "preversion": "yarn validate",
     "test": "jest",
     "update-version": "ts-node scripts/update-version",
     "validate": "yarn lint && yarn test",
