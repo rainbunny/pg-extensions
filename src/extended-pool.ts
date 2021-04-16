@@ -3,7 +3,7 @@ import type {ExtendedPoolConfig, DbQuery, ExtendedPool, ExtendedPoolClient} from
 import {implementExecutor} from './implement-executor';
 
 export class Pool extends PgPool implements ExtendedPool {
-  log: ExtendedPoolConfig['log'];
+  log?: ExtendedPoolConfig['log'];
 
   executeQuery: <T>(query: DbQuery) => Promise<T[]>;
 

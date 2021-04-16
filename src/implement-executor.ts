@@ -25,7 +25,7 @@ export const implementExecutor = <Source extends ExtendedPool | ExtendedPoolClie
       offset: undefined,
     });
     const countQueryText = `SELECT COUNT(*) FROM (${queryText}) AS T`;
-    return executeQuery<{count: number}>(this, countQueryText, params, log).then((res) => res.rows[0].count);
+    return executeQuery<{count: number}>(executor, countQueryText, params, log).then((res) => res.rows[0].count);
   };
 
   /** Get record by id */
@@ -47,7 +47,7 @@ export const implementExecutor = <Source extends ExtendedPool | ExtendedPoolClie
     const fieldsText = paramNames.join(',');
     const paramsText = Array.from(Array(paramNames.length), (_x, i) => `$${i + 1}`).join(',');
     const queryText = `INSERT INTO ${table}(${fieldsText}) VALUES(${paramsText}) RETURNING id`;
-    return executeQuery<{id: never}>(this, queryText, params, log).then((res) => res.rows[0].id);
+    return executeQuery<{id: never}>(executor, queryText, params, log).then((res) => res.rows[0].id);
   };
 
   /** update existing record */
@@ -60,13 +60,13 @@ export const implementExecutor = <Source extends ExtendedPool | ExtendedPoolClie
     const params = paramNames.map((name) => updatedData[name]);
     const paramsText = paramNames.map((paramName, index) => `${paramName}=$${index + 2}`).join(',');
     const queryText = `UPDATE ${table} SET ${paramsText} WHERE ${idField} = $1`;
-    await executeQuery<{id: Id}>(this, queryText, [id, ...params], log);
+    await executeQuery<{id: Id}>(executor, queryText, [id, ...params], log);
   };
 
   /** delete existing record */
   executor.remove = (table: string) => async <Id>(id: Id, idField = 'id'): Promise<void> => {
     const queryText = `DELETE FROM ${table} WHERE ${idField} = $1`;
-    await executeQuery(this, queryText, [id], log);
+    await executeQuery(executor, queryText, [id], log);
   };
 
   return executor;
