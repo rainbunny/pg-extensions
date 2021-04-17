@@ -18,6 +18,7 @@ export const implementExecutor = <Source extends ExtendedPool | ExtendedPoolClie
   executor.count = async (query: DbQuery): Promise<number> => {
     const {queryText, params} = buildQuery({
       ...query,
+      fields: [],
       pageIndex: undefined,
       rowsPerPage: undefined,
       sortBy: undefined,

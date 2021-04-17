@@ -32,15 +32,11 @@ export class Pool extends PgPool implements ExtendedPool {
   executeTransaction = async (transaction: (client: ExtendedPoolClient) => Promise<void>): Promise<void> => {
     const client = await this.connect();
     const extendedClient = implementExecutor<ExtendedPoolClient>(client as ExtendedPoolClient, this.log);
-    try {
-      await extendedClient.query('BEGIN');
-      await transaction(extendedClient);
-      await extendedClient.query('COMMIT');
-    } catch (e) {
-      await extendedClient.query('ROLLBACK');
-      throw e;
-    } finally {
-      extendedClient.release();
-    }
+    return extendedClient
+      .query('BEGIN')
+      .then(() => transaction(extendedClient))
+      .then(() => extendedClient.query('COMMIT'))
+      .catch((e) => extendedClient.query('ROLLBACK').then(() => e))
+      .finally(() => extendedClient.release());
   };
 }
