@@ -2,6 +2,25 @@
 
 Add more functions into the original pg package such as query builder, extended pool, extended client. It helps us to interact with Postgres easier then using an external ORM. The package is written in Typescript.
 
+![Typed with TypeScript](https://flat.badgen.net/badge/icon/Typed?icon=typescript&label&labelColor=blue&color=555555)
+![Eslint](https://badgen.net/badge/eslint/airbnb/ff5a5f?icon=airbnb)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+[![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest)
+![GitHub](https://img.shields.io/github/license/rainbunny/pg-extensions)
+![GitHub repo size](https://img.shields.io/github/repo-size/rainbunny/pg-extensions)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/rainbunny/pg-extensions)
+
+**main:**
+![CI-main](https://github.com/rainbunny/pg-extensions/workflows/CI-main/badge.svg)
+[![codecov](https://codecov.io/gh/rainbunny/pg-extensions/branch/main/graph/badge.svg)](https://codecov.io/gh/rainbunny/pg-extensions)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rainbunny_pg-extensions&metric=alert_status)](https://sonarcloud.io/dashboard?id=rainbunny_pg-extensions)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=rainbunny_pg-extensions&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=rainbunny_pg-extensions)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=rainbunny_pg-extensions&metric=security_rating)](https://sonarcloud.io/dashboard?id=rainbunny_pg-extensions)
+
+**develop:**
+![CI-develop](https://github.com/rainbunny/pg-extensions/workflows/CI-develop/badge.svg?branch=develop)
+[![codecov](https://codecov.io/gh/rainbunny/pg-extensions/branch/develop/graph/badge.svg)](https://codecov.io/gh/rainbunny/pg-extensions/branch/develop)
+
 ## Installation
 
 ```bash
