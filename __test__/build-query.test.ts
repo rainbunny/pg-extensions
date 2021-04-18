@@ -159,8 +159,8 @@ describe('buildQuery', () => {
     const query = buildQuery({
       table: 'app_user',
       whereClause: 'createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)',
-      fields: ['id', 'userusername', 'createdAt'],
-      sortBy: ['userusername|ASC', 'createdAt|DESC'],
+      fields: ['id', 'username', 'createdAt'],
+      sortBy: ['username|ASC', 'createdAt|DESC'],
       pageIndex: 2,
       rowsPerPage: 5,
       params: {
@@ -176,7 +176,7 @@ describe('buildQuery', () => {
           "admin",
           1617869191488,
         ],
-        "queryText": "SELECT id as \\"id\\",userusername as \\"userusername\\",createdAt as \\"createdAt\\" FROM app_user WHERE createdAt >= $4 AND tsv @@ to_tsquery($3) ORDER BY userusername ASC, createdAt DESC LIMIT $1 OFFSET $2",
+        "queryText": "SELECT id as \\"id\\",username as \\"username\\",createdAt as \\"createdAt\\" FROM app_user WHERE createdAt >= $4 AND tsv @@ to_tsquery($3) ORDER BY username ASC, createdAt DESC LIMIT $1 OFFSET $2",
       }
     `);
   });
