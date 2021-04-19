@@ -58,7 +58,6 @@
     "prepare": "yarn build",
     "prepublishOnly": "yarn validate",
     "test": "jest",
-    "update-version": "ts-node scripts/update-version",
     "validate": "yarn lint && yarn test",
     "version": "yarn validate && git add -A src"
   },
