@@ -1,5 +1,5 @@
 import type {Pool, PoolClient, QueryResult} from 'pg';
-import type {Logger} from './interfaces';
+import type {Logger} from '@lib/interfaces';
 
 /** execute query and return result */
 export const executeQuery = async <T>(

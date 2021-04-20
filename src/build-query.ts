@@ -1,4 +1,4 @@
-import type {DbQuery} from './interfaces';
+import type {DbQuery} from '@lib/interfaces';
 
 /** build postgres sql query & params */
 export const buildQuery = (query: DbQuery): {queryText: string; params?: unknown[]} => {

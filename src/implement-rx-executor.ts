@@ -1,21 +1,23 @@
 /* eslint-disable no-param-reassign */
-import type {DbQuery, Executor, ExtendedPool, ExtendedPoolClient, Logger} from '@lib/interfaces';
+import type {Observable} from 'rxjs';
+import type {DbQuery, RxExecutor, Logger, RxExtendedPool, RxExtendedPoolClient} from '@lib/interfaces';
 
+import {from} from 'rxjs';
 import {executeQuery} from './execute-query';
 import {buildQuery} from './build-query';
 
-export const implementExecutor = <Source extends ExtendedPool | ExtendedPoolClient>(
-  executor: Source & Executor,
+export const implementRxExecutor = <Source extends RxExtendedPool | RxExtendedPoolClient>(
+  executor: Source & RxExecutor,
   log?: Logger,
 ): Source => {
   /** Execute query */
-  executor.executeQuery = async <T>(query: DbQuery): Promise<T[]> => {
+  executor.executeQuery = <T>(query: DbQuery): Observable<T[]> => {
     const {queryText, params} = buildQuery(query);
-    return executeQuery<T>(executor, queryText, params, log).then((res) => res.rows);
+    return from(executeQuery<T>(executor, queryText, params, log).then((res) => res.rows));
   };
 
   /** Count records in the query */
-  executor.count = async (query: DbQuery): Promise<number> => {
+  executor.count = (query: DbQuery): Observable<number> => {
     const {queryText, params} = buildQuery({
       ...query,
       fields: [],
@@ -26,48 +28,56 @@ export const implementExecutor = <Source extends ExtendedPool | ExtendedPoolClie
       offset: undefined,
     });
     const countQueryText = `SELECT COUNT(*) FROM (${queryText}) AS T`;
-    return executeQuery<{count: number}>(executor, countQueryText, params, log).then((res) => res.rows[0].count);
+    return from(executeQuery<{count: number}>(executor, countQueryText, params, log).then((res) => res.rows[0].count));
   };
 
   /** Get record by id */
-  executor.getById = (table: string) => async <Record, Id>(
+  executor.getById = (table: string) => <Record, Id>(
     id: Id,
     fields?: string[],
     idField = 'id',
-  ): Promise<Record | undefined> => {
+  ): Observable<Record | undefined> => {
     const {queryText, params} = buildQuery({table, whereClause: `${idField} = :id`, fields, params: {id}});
-    return executeQuery<Record>(executor, queryText, params).then((res) =>
-      res.rows.length > 0 ? res.rows[0] : undefined,
+    return from(
+      executeQuery<Record>(executor, queryText, params).then((res) => (res.rows.length > 0 ? res.rows[0] : undefined)),
     );
   };
 
   /** create new record */
-  executor.create = (table: string) => async <Record, Id>(record: Partial<Record>): Promise<Id> => {
+  executor.create = (table: string) => <Record, Id>(record: Partial<Record>): Observable<Id> => {
     const paramNames = Object.keys(record) as (keyof Record)[];
     const params = paramNames.map((name) => record[name]);
     const fieldsText = paramNames.join(',');
     const paramsText = Array.from(Array(paramNames.length), (_x, i) => `$${i + 1}`).join(',');
     const queryText = `INSERT INTO ${table}(${fieldsText}) VALUES(${paramsText}) RETURNING id`;
-    return executeQuery<{id: never}>(executor, queryText, params, log).then((res) => res.rows[0].id);
+    return from(executeQuery<{id: Id}>(executor, queryText, params, log).then((res) => res.rows[0].id));
   };
 
   /** update existing record */
-  executor.update = (table: string) => async <Record, Id>(
+  executor.update = (table: string) => <Record, Id>(
     id: Id,
     updatedData: Partial<Record>,
     idField = 'id',
-  ): Promise<void> => {
+  ): Observable<void> => {
     const paramNames = Object.keys(updatedData) as (keyof Record)[];
     const params = paramNames.map((name) => updatedData[name]);
     const paramsText = paramNames.map((paramName, index) => `${paramName}=$${index + 2}`).join(',');
     const queryText = `UPDATE ${table} SET ${paramsText} WHERE ${idField} = $1`;
-    await executeQuery<{id: Id}>(executor, queryText, [id, ...params], log);
+    return from(
+      executeQuery(executor, queryText, [id, ...params], log).then(() => {
+        // do nothing
+      }),
+    );
   };
 
   /** delete existing record */
-  executor.remove = (table: string) => async <Id>(id: Id, idField = 'id'): Promise<void> => {
+  executor.remove = (table: string) => <Id>(id: Id, idField = 'id'): Observable<void> => {
     const queryText = `DELETE FROM ${table} WHERE ${idField} = $1`;
-    await executeQuery(executor, queryText, [id], log);
+    return from(
+      executeQuery(executor, queryText, [id], log).then(() => {
+        // do nothing
+      }),
+    );
   };
 
   return executor;
