@@ -1,6 +1,6 @@
 import type {ExtendedPool} from '@lib/interfaces';
 import {implementExecutor} from '@lib/implement-executor';
-import {Pool} from '@lib/extended-pool';
+import {Pool} from '@lib/pool';
 
 describe('implementExecutor', () => {
   let pool: ExtendedPool;

@@ -3,4 +3,4 @@ export type {DbQuery, ExtendedPoolConfig, Logger, Executor, ExtendedPool, Extend
 export {buildQuery} from './build-query';
 export {executeQuery} from './execute-query';
 
-export {Pool} from './extended-pool';
+export {Pool} from './pool';

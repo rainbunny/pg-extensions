@@ -1,6 +1,6 @@
 import type {PoolClient} from 'pg';
 
-import {Pool} from '@lib/extended-pool';
+import {Pool} from '@lib/pool';
 
 describe('Pool', () => {
   it('runs transaction correctly', async () => {
