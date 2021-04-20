@@ -63,5 +63,5 @@
     "version": "yarn validate && git add -A src"
   },
   "types": "lib/index.d.ts",
-  "version": "0.2.4"
+  "version": "0.3.0"
 }
