@@ -9,8 +9,8 @@ describe('executeQuery', () => {
     const mockExecutor = jest.fn();
     const mockResult = [1];
     const src = {
-      query: async (queryText, params) => {
-        mockExecutor(queryText, params);
+      query: async (execQueryText, execParams) => {
+        mockExecutor(execQueryText, execParams);
         return mockResult;
       },
     };
@@ -26,9 +26,9 @@ describe('executeQuery', () => {
     const mockExecutor = jest.fn();
     const mockResult = [1];
     const src = {
-      query: async (queryText, params) => {
+      query: async (execQueryText, execParams) => {
         mockdate.set(1434319925276);
-        mockExecutor(queryText, params);
+        mockExecutor(execQueryText, execParams);
         return mockResult;
       },
     };

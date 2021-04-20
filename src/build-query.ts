@@ -1,26 +1,29 @@
 import type {DbQuery} from '@lib/interfaces';
 
-/** build postgres sql query & params */
-export const buildQuery = (query: DbQuery): {queryText: string; params?: unknown[]} => {
-  const {fields, queryText, table, whereClause, sortBy, pageIndex, rowsPerPage, params} = query;
-  let {limit, offset} = query;
-  const fieldsClause = fields ? fields.map((field) => `${field} as "${field}"`).join(',') : '';
+const buildMainQuery = ({queryText, table, whereClause, fields}: DbQuery): string => {
   let finalQueryText: string;
-  let paramInx = 1;
-  const paramsArr = [];
-
-  // build query
+  const fieldsClause = fields ? fields.map((field) => `${field} as "${field}"`).join(',') : '';
   if (!queryText) {
     finalQueryText = `SELECT ${fieldsClause || '*'} FROM ${table}`;
     finalQueryText += whereClause ? ` WHERE ${whereClause}` : '';
   } else {
     finalQueryText = `SELECT ${fieldsClause || '*'} FROM (${queryText}) AS T`;
   }
+  return finalQueryText;
+};
 
-  // add sort by
-  if (sortBy && sortBy.length > 0) {
-    finalQueryText += ` ORDER BY ${sortBy.map((m) => m.replace('|', ' ')).join(', ')}`;
-  }
+const buildSortBy = ({sortBy}: DbQuery): string =>
+  sortBy && sortBy.length > 0 ? ` ORDER BY ${sortBy.map((m) => m.replace('|', ' ')).join(', ')}` : '';
+
+/** build postgres sql query & params */
+export const buildQuery = (query: DbQuery): {queryText: string; params?: unknown[]} => {
+  const {pageIndex, rowsPerPage, params} = query;
+  let {limit, offset} = query;
+  let finalQueryText: string;
+  let paramInx = 1;
+  const paramsArr = [];
+
+  finalQueryText = buildMainQuery(query) + buildSortBy(query);
 
   // add limit/offset
   if (typeof pageIndex === 'number' && typeof rowsPerPage === 'number') {
