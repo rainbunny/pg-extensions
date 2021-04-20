@@ -55,9 +55,9 @@
     "build": "rm -r -f lib && babel src --out-dir lib --extensions \".ts\" --source-maps inline --copy-files && tsc --project tsconfig.definition.json",
     "lint": "prettier --check . && eslint . --ext .js,.jsx,.ts,.tsx && tsc --noEmit",
     "lint-fix": "prettier --write . && eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "postversion": "git push && git push --tags",
     "prepare": "yarn build",
     "prepublishOnly": "yarn validate",
+    "push": "git push && git push --tags",
     "test": "jest",
     "validate": "yarn lint && yarn test",
     "version": "yarn validate && git add -A src"
