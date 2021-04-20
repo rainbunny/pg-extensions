@@ -40,7 +40,8 @@
   "keywords": [
     "pg",
     "postgres",
-    "typescript"
+    "typescript",
+    "nodejs"
   ],
   "license": "MIT",
   "main": "lib/index.js",
