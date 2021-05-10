@@ -26,11 +26,7 @@ describe('RxPool', () => {
       })
       .subscribe(() => {
         expect(mockClient.query).toHaveBeenNthCalledWith(1, 'BEGIN');
-        expect(mockClient.query).toHaveBeenNthCalledWith(
-          2,
-          'SELECT * FROM (SELECT id, username FROM app_user where id = $1) AS T',
-          [1],
-        );
+        expect(mockClient.query).toHaveBeenNthCalledWith(2, 'SELECT id, username FROM app_user where id = $1', [1]);
         expect(mockClient.query).toHaveBeenNthCalledWith(3, 'COMMIT');
         expect(mockClient.query).toBeCalledTimes(3);
         expect(mockClient.release).toBeCalledTimes(1);
@@ -64,11 +60,7 @@ describe('RxPool', () => {
         },
         () => {
           expect(mockClient.query).toHaveBeenNthCalledWith(1, 'BEGIN');
-          expect(mockClient.query).toHaveBeenNthCalledWith(
-            2,
-            'SELECT * FROM (SELECT id, username FROM app_user where id = $1) AS T',
-            [1],
-          );
+          expect(mockClient.query).toHaveBeenNthCalledWith(2, 'SELECT id, username FROM app_user where id = $1', [1]);
           expect(mockClient.query).toHaveBeenNthCalledWith(3, 'ROLLBACK');
           expect(mockClient.query).toBeCalledTimes(3);
           expect(mockClient.release).toBeCalledTimes(1);

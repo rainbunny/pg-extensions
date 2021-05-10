@@ -1,6 +1,6 @@
 import type { Observable } from 'rxjs';
-import type { ExtendedPoolConfig, DbQuery, RxExtendedPool, RxExtendedPoolClient } from '@lib/interfaces';
 import { Pool as PgPool } from 'pg';
+import type { ExtendedPoolConfig, DbQuery, RxExtendedPool, RxExtendedPoolClient } from './interfaces';
 export declare class RxPool extends PgPool implements RxExtendedPool {
     log?: ExtendedPoolConfig['log'];
     executeQuery: <T>(query: DbQuery) => Observable<T[]>;

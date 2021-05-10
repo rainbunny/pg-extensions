@@ -17,17 +17,8 @@ describe('implementExecutor', () => {
     const result = await pool.executeQuery({
       queryText,
       params,
-      fields: ['id', 'username', 'createdAt'],
-      sortBy: ['id|asc'],
-      limit: 10,
-      offset: 20,
     });
-    expect(
-      (pool.query as unknown) as jest.Mock,
-    ).toBeCalledWith(
-      'SELECT id as "id",username as "username",createdAt as "createdAt" FROM (select * from app_user where id = $3) AS T ORDER BY id asc LIMIT $1 OFFSET $2',
-      [10, 20, 1],
-    );
+    expect((pool.query as unknown) as jest.Mock).toBeCalledWith('select * from app_user where id = $1', [1]);
     expect(result).toEqual(mockResult);
   });
 
@@ -39,14 +30,10 @@ describe('implementExecutor', () => {
     const result = await pool.count({
       queryText,
       params,
-      fields: ['id', 'username', 'createdAt'],
-      sortBy: ['id|asc'],
-      limit: 10,
-      offset: 20,
     });
     expect(
       (pool.query as unknown) as jest.Mock,
-    ).toBeCalledWith('SELECT COUNT(*) FROM (SELECT * FROM (select * from app_user where id = $1) AS T) AS T', [1]);
+    ).toBeCalledWith('SELECT COUNT(*) FROM (select * from app_user where id = $1) AS T', [1]);
     expect(result).toEqual(4);
   });
 

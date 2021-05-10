@@ -1,9 +1,8 @@
 import type {Observable} from 'rxjs';
-import type {ExtendedPoolConfig, DbQuery, RxExtendedPool, RxExtendedPoolClient} from '@lib/interfaces';
-
 import {from, throwError, of} from 'rxjs';
 import {catchError, map, switchMap} from 'rxjs/operators';
 import {Pool as PgPool} from 'pg';
+import type {ExtendedPoolConfig, DbQuery, RxExtendedPool, RxExtendedPoolClient} from './interfaces';
 import {implementRxExecutor} from './implement-rx-executor';
 
 export class RxPool extends PgPool implements RxExtendedPool {

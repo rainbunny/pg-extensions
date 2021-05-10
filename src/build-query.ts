@@ -1,15 +1,8 @@
-import type {DbQuery} from '@lib/interfaces';
+import type {DbQuery} from './interfaces';
 
-const buildMainQuery = ({queryText, table, whereClause, fields}: DbQuery): string => {
-  let finalQueryText: string;
+const buildMainQuery = ({table, whereClause, fields}: DbQuery): string => {
   const fieldsClause = fields ? fields.map((field) => `${field} as "${field}"`).join(',') : '';
-  if (!queryText) {
-    finalQueryText = `SELECT ${fieldsClause || '*'} FROM ${table}`;
-    finalQueryText += whereClause ? ` WHERE ${whereClause}` : '';
-  } else {
-    finalQueryText = `SELECT ${fieldsClause || '*'} FROM (${queryText}) AS T`;
-  }
-  return finalQueryText;
+  return `SELECT ${fieldsClause || '*'} FROM ${table}${whereClause ? ` WHERE ${whereClause}` : ''}`;
 };
 
 const buildSortBy = ({sortBy}: DbQuery): string =>
@@ -23,22 +16,25 @@ export const buildQuery = (query: DbQuery): {queryText: string; params?: unknown
   let paramInx = 1;
   const paramsArr = [];
 
-  finalQueryText = buildMainQuery(query) + buildSortBy(query);
-
-  // add limit/offset
-  if (typeof pageIndex === 'number' && typeof rowsPerPage === 'number') {
-    limit = rowsPerPage;
-    offset = rowsPerPage * pageIndex;
-  }
-  if (typeof limit === 'number') {
-    finalQueryText += ` LIMIT $${paramInx}`;
-    paramsArr.push(limit);
-    paramInx += 1;
-  }
-  if (typeof offset === 'number') {
-    finalQueryText += ` OFFSET $${paramInx}`;
-    paramsArr.push(offset);
-    paramInx += 1;
+  if (query.queryText) {
+    finalQueryText = query.queryText;
+  } else {
+    finalQueryText = buildMainQuery(query) + buildSortBy(query);
+    // add limit/offset
+    if (typeof pageIndex === 'number' && typeof rowsPerPage === 'number') {
+      limit = rowsPerPage;
+      offset = rowsPerPage * pageIndex;
+    }
+    if (typeof limit === 'number') {
+      finalQueryText += ` LIMIT $${paramInx}`;
+      paramsArr.push(limit);
+      paramInx += 1;
+    }
+    if (typeof offset === 'number') {
+      finalQueryText += ` OFFSET $${paramInx}`;
+      paramsArr.push(offset);
+      paramInx += 1;
+    }
   }
 
   // assign params

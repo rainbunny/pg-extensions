@@ -8,7 +8,7 @@ describe('buildQuery', () => {
     expect(query).toMatchInlineSnapshot(`
       Object {
         "params": Array [],
-        "queryText": "SELECT * FROM (SELECT id, username FROM app_user) AS T",
+        "queryText": "SELECT id, username FROM app_user",
       }
     `);
   });
