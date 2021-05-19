@@ -1,8 +1,6 @@
-import type {Pool} from 'pg';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import mockdate from 'mockdate';
-
 import {executeQuery} from '@lib/execute-query';
+import type {Pool} from 'pg';
 
 describe('executeQuery', () => {
   it('passes the correct data into src query', async () => {
@@ -16,7 +14,7 @@ describe('executeQuery', () => {
     };
     const queryText = 'SELECT id, username FROM app_user where id = $1';
     const params = ['1'];
-    const result = await executeQuery((src as unknown) as Pool, queryText, params);
+    const result = await executeQuery(src as unknown as Pool, queryText, params);
     expect(mockExecutor).toBeCalledWith(queryText, params);
     expect(result).toEqual(mockResult);
   });
@@ -35,7 +33,7 @@ describe('executeQuery', () => {
     const queryText = 'SELECT id, username FROM app_user where id = $1';
     const params = ['1'];
     mockdate.set(1434319925275);
-    await executeQuery((src as unknown) as Pool, queryText, params, log);
+    await executeQuery(src as unknown as Pool, queryText, params, log);
     expect(log).toBeCalledWith({queryText, params, duration: 1});
   });
 });

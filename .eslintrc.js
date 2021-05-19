@@ -23,6 +23,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', {argsIgnorePattern: '^_'}],
     'no-use-before-define': 'off',
     '@typescript-eslint/no-use-before-define': ['error'],
+    'import/no-extraneous-dependencies': ['error', {devDependencies: true}],
   },
   settings: {
     'import/resolver': {

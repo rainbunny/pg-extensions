@@ -1,7 +1,6 @@
-import type {PoolClient} from 'pg';
-
 import {RxPool} from '@lib/rx-pool';
 import {map} from 'rxjs/operators';
+import type {PoolClient} from 'pg';
 
 describe('RxPool', () => {
   it('runs transaction correctly', (done) => {
