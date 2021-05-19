@@ -1,7 +1,7 @@
 import { Pool as PgPool } from 'pg';
 import type { ExtendedPoolConfig, DbQuery, ExtendedPool, ExtendedPoolClient } from './interfaces';
 export declare class Pool extends PgPool implements ExtendedPool {
-    log?: ExtendedPoolConfig['log'];
+    private logQuery?;
     executeQuery: <T>(query: DbQuery) => Promise<T[]>;
     count: (query: DbQuery) => Promise<number>;
     getById: (table: string) => <Record, Id>(id: Id, fields?: string[], idField?: string) => Promise<Record>;

@@ -1,8 +1,8 @@
-import type { Observable } from 'rxjs';
 import { Pool as PgPool } from 'pg';
+import type { Observable } from 'rxjs';
 import type { ExtendedPoolConfig, DbQuery, RxExtendedPool, RxExtendedPoolClient } from './interfaces';
 export declare class RxPool extends PgPool implements RxExtendedPool {
-    log?: ExtendedPoolConfig['log'];
+    private logQuery?;
     executeQuery: <T>(query: DbQuery) => Observable<T[]>;
     count: (query: DbQuery) => Observable<number>;
     getById: (table: string) => <Record, Id>(id: Id, fields?: string[], idField?: string) => Observable<Record>;

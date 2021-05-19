@@ -3,7 +3,7 @@ import type {ExtendedPoolConfig, DbQuery, ExtendedPool, ExtendedPoolClient} from
 import {implementExecutor} from './implement-executor';
 
 export class Pool extends PgPool implements ExtendedPool {
-  log?: ExtendedPoolConfig['log'];
+  private logQuery?: ExtendedPoolConfig['log'];
 
   executeQuery: <T>(query: DbQuery) => Promise<T[]>;
 
@@ -21,9 +21,9 @@ export class Pool extends PgPool implements ExtendedPool {
     super(config);
     if (config) {
       const {log} = config;
-      this.log = log;
+      this.logQuery = log;
     }
-    implementExecutor(this, this.log);
+    implementExecutor(this, this.logQuery);
   }
 
   /** Execute transaction.
@@ -31,7 +31,7 @@ export class Pool extends PgPool implements ExtendedPool {
    */
   executeTransaction = async (transaction: (client: ExtendedPoolClient) => Promise<void>): Promise<void> => {
     const client = await this.connect();
-    const extendedClient = implementExecutor<ExtendedPoolClient>(client as ExtendedPoolClient, this.log);
+    const extendedClient = implementExecutor<ExtendedPoolClient>(client as ExtendedPoolClient, this.logQuery);
     return extendedClient
       .query('BEGIN')
       .then(() => transaction(extendedClient))

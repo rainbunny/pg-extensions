@@ -6,7 +6,7 @@ import type {ExtendedPoolConfig, DbQuery, RxExtendedPool, RxExtendedPoolClient} 
 import {implementRxExecutor} from './implement-rx-executor';
 
 export class RxPool extends PgPool implements RxExtendedPool {
-  log?: ExtendedPoolConfig['log'];
+  private logQuery?: ExtendedPoolConfig['log'];
 
   executeQuery: <T>(query: DbQuery) => Observable<T[]>;
 
@@ -24,9 +24,9 @@ export class RxPool extends PgPool implements RxExtendedPool {
     super(config);
     if (config) {
       const {log} = config;
-      this.log = log;
+      this.logQuery = log;
     }
-    implementRxExecutor(this, this.log);
+    implementRxExecutor(this, this.logQuery);
   }
 
   /** Execute transaction.
@@ -34,19 +34,16 @@ export class RxPool extends PgPool implements RxExtendedPool {
    */
   executeTransaction = (transaction: (client: RxExtendedPoolClient) => Observable<void>): Observable<void> =>
     from(this.connect()).pipe(
-      map((client: RxExtendedPoolClient) => implementRxExecutor<RxExtendedPoolClient>(client, this.log)),
+      map((client: RxExtendedPoolClient) => implementRxExecutor<RxExtendedPoolClient>(client, this.logQuery)),
       switchMap((client) =>
         of({}).pipe(
           switchMap(() => from(client.query('BEGIN'))),
           switchMap(() => transaction(client)),
           switchMap(() => from(client.query('COMMIT').then(() => client.release()))),
           catchError((err) =>
-            from(client.query('ROLLBACK').then(() => client.release())).pipe(switchMap(() => throwError(err))),
+            from(client.query('ROLLBACK').then(() => client.release())).pipe(switchMap(() => throwError(() => err))),
           ),
         ),
       ),
-      map(() => {
-        // do nothing
-      }),
     );
 }
