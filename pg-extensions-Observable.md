@@ -1,6 +1,6 @@
-# pg-extensions (Observable)
+# pg-extensions (Promise)
 
-Use pg-extensions with Observable style
+Use pg-extensions with Observable
 
 ## How to use
 
@@ -33,115 +33,172 @@ pool.on('connect', () => console.log('Connected to database'));
 
 ### pool.executeQuery
 
-Use this function instead of the original **pool.query** function. It can use named parameters and resolve the problem of camelCase property name in the query result.
+Use this function instead of the original **pool.query** function.
 
 ```typescript
-pool.executeQuery({
-  queryText: 'select * from app_user where createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)',
-  fields: ['id', 'username', 'createdAt'], // optional
-  sortBy: ['username|ASC', 'createdAt|DESC'], // optional
-  pageIndex: 2, // optional
-  rowsPerPage: 5, // optional
-  // optional
-  params: {
-    searchTerm: 'admin',
-    createdAt: 1617869191488,
-  },
-});
+pool
+  .executeQuery({
+    queryText: 'select id, username, createAt as "createdAt" from app_user where id = :id',
+    // optional params
+    params: {
+      id: '1',
+    },
+  })
+  .subscribe({
+    next: (result) => {
+      console.log(result);
+    },
+  });
 // Generated query
-// SELECT id as "id",username as "username",createdAt as "createdAt" FROM (select * from app_user where createdAt >= $4 AND tsv @@ to_tsquery($3)) AS T ORDER BY username ASC, createdAt DESC LIMIT $1 OFFSET $2
-// Params: [5, 10, 'admin', 1617869191488];
-// Return
-// [{id: 1, username: 'admin', createdAt: 1617869191488}]
+// select id, username, createAt as "createdAt" from app_user where id = $1
+// Params: ['1'];
+// result = [{id: '1', username: 'admin', createdAt: 1617869191488}]
 
-type executeQuery = <T>(query: DbQuery) => Observable<T[]>;
+type executeQuery = <T>(query: DbQuery) => Promise<T[]>;
+```
+
+You may query a table. It can use named parameters and resolve the problem of camelCase property name in the query result.
+
+```typescript
+pool
+  .executeQuery({
+    table: 'app_user',
+    whereClause: 'createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)', // optional
+    fields: ['id', 'username', 'createdAt'], // optional
+    sortBy: ['username|ASC', 'createdAt|DESC'], // optional
+    pageIndex: 2, // optional
+    rowsPerPage: 5, // optional
+    // optional
+    params: {
+      searchTerm: 'admin',
+      createdAt: 1617869191488,
+    },
+  })
+  .subscribe({
+    next: (result) => {
+      console.log(result);
+    },
+  });
+// Generated query
+// SELECT id as "id",username as "username",createdAt as "createdAt" FROM app_user WHERE createdAt >= $4 AND tsv @@ to_tsquery($3) ORDER BY username ASC, createdAt DESC LIMIT $1 OFFSET $2
+// Params: [5, 10, 'admin', 1617869191488];
+// result = [{id: 1, username: 'admin', createdAt: 1617869191488}]
 ```
 
 Or use the normal offset, limit options with the same result.
 
 ```typescript
-pool.executeQuery({
-  queryText: 'select * from app_user where createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)',
-  fields: ['id', 'username', 'createdAt'],
-  sortBy: ['username|ASC', 'createdAt|DESC'],
-  limit: 5,
-  offset: 10,
-  params: {
-    searchTerm: 'admin',
-    createdAt: 1617869191488,
-  },
-});
-// Generated query
-// SELECT id as "id",username as "username",createdAt as "createdAt" FROM (select * from app_user where createdAt >= $4 AND tsv @@ to_tsquery($3)) AS T ORDER BY username ASC, createdAt DESC LIMIT $1 OFFSET $2
-// Params: [5, 10, 'admin', 1617869191488];
-// Return
-// [{id: 1, username: 'admin', createdAt: 1617869191488}]
-```
-
-You may use a table name and a where clause
-
-```typescript
-pool.executeQuery({
-  table: 'app_user',
-  whereClause: 'createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)', // optional
-  fields: ['id', 'username', 'createdAt'], // optional
-  sortBy: ['username|ASC', 'createdAt|DESC'], // optional
-  limit: 5, // optional
-  offset: 10, // optional
-  // optional
-  params: {
-    searchTerm: 'admin',
-    createdAt: 1617869191488,
-  },
-});
+pool
+  .executeQuery({
+    table: 'app_user',
+    whereClause: 'createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)',
+    fields: ['id', 'username', 'createdAt'],
+    sortBy: ['username|ASC', 'createdAt|DESC'],
+    limit: 5,
+    offset: 10,
+    params: {
+      searchTerm: 'admin',
+      createdAt: 1617869191488,
+    },
+  })
+  .subscribe({
+    next: (result) => {
+      console.log(result);
+    },
+  });
 // Generated query
 // SELECT id as "id",username as "username",createdAt as "createdAt" FROM app_user WHERE createdAt >= $4 AND tsv @@ to_tsquery($3) ORDER BY username ASC, createdAt DESC LIMIT $1 OFFSET $2
 // Params: [5, 10, 'admin', 1617869191488];
+// result = [{id: 1, username: 'admin', createdAt: 1617869191488}]
 ```
 
 ### pool.count
 
-Count the number of records. Use the same params as **pool.executeQuery**. Only properties _queryText_, _table_, _whereClause_ and _params_ are used.
+Count the number of records. Use the same params as **pool.executeQuery**. Only properties _queryText_, _table_, _whereClause_ and _params_ are included when using _table_.
 
 ```typescript
-pool.count({
-  queryText: 'select * from app_user where id = :id',
-  params: {id: 1},
-  fields: ['id', 'username', 'createdAt'],
-  sortBy: ['id|asc'],
-  limit: 10,
-  offset: 20,
-});
+pool
+  .count({
+    queryText: 'select * from app_user where id = :id',
+  })
+  .subscribe({
+    next: (count) => {
+      console.log(count);
+    },
+  });
 // Return the number of records
 // Generated query
-// SELECT COUNT(*) FROM (SELECT * FROM (select * from app_user where id = $1) AS T) AS T
+// SELECT COUNT(*) FROM (select * from app_user where id = $1) AS T
 // Params: [1]
+// count = 1
 
-type count = (query: DbQuery) => Observable<number>;
+pool
+  .count({
+    table: 'app_user',
+    whereClause: 'createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)', // optional
+    fields: ['id', 'username', 'createdAt'],
+    sortBy: ['username|ASC', 'createdAt|DESC'],
+    pageIndex: 2,
+    rowsPerPage: 5,
+    params: {
+      searchTerm: 'admin',
+      createdAt: 1617869191488,
+    },
+  })
+  .subscribe({
+    next: (count) => {
+      console.log(count);
+    },
+  });
+// Return the number of records
+// Generated query
+// SELECT COUNT(*) FROM (SELECT * FROM app_user WHERE createdAt >= $2 AND tsv @@ to_tsquery($1)) AS T
+// Params: ['admin', 1617869191488]
+// count = 1
+
+type count = (query: DbQuery) => Promise<number>;
 ```
-
-Use this function instead of the original **pool.query** function. It can use named parameters and resolve the problem of camelCase property name in the query result.
 
 ### pool.getById
 
 Get a record in a table using id.
 
 ```typescript
-pool.getById('app_user')(1, ['id', 'username']);
+pool
+  .getById('app_user')(1, ['id', 'username'])
+  .subscribe({
+    next: (entity) => {
+      console.log(count);
+    },
+  });
 // Generated query
 // SELECT id as "id",username as "username" FROM app_user WHERE id = $1
 // Params: [1]
-// Return
-// {
+// entity = {
 //   id: 1,
 //   username: 'admin',
 //   createdAt: 1617869191488
 // }
-pool.getById('app_user')(1, ['id', 'username', 'createdAt'], 'userId'); // in case the primary key column is named 'userId'
+pool
+  .getById('app_user')(1, ['userId', 'username', 'createdAt'], 'userId')
+  .subscribe({
+    next: (entity) => {
+      console.log(count);
+    },
+  });
+// in case the primary key column is named 'userId'
+// Generated query
+// SELECT userId as "userId",username as "username" FROM app_user WHERE userId = $1
+// Params: [1]
+// entity = {
+//   userId: 1,
+//   username: 'admin',
+//   createdAt: 1617869191488
+// }
 
 type getById = (
   table: string,
-) => <Record, Id>(id: Id, fields?: string[], idField?: string) => Observable<Record | undefined>;
+) => <Record, Id>(id: Id, fields?: string[], idField?: string) => Promise<Record | undefined>;
 ```
 
 ### pool.create
@@ -149,13 +206,19 @@ type getById = (
 Create a new record in a specific table.
 
 ```typescript
-pool.create('app_user')({username: 'thinh', displayName: 'Thinh Tran'});
+pool
+  .create('app_user')({username: 'thinh', displayName: 'Thinh Tran'})
+  .subscribe({
+    next: (id) => {
+      console.log(id);
+    },
+  });
 // Generated query
 // INSERT INTO app_user(username,displayName) VALUES($1,$2) RETURNING id
 // Params: ['thinh', 'Thinh Tran']
 // Return id from the new record
 
-type create = (table: string) => <Record, Id>(record: Partial<Record>) => Observable<Id>;
+type create = (table: string) => <Record, Id>(record: Partial<Record>) => Promise<Id>;
 ```
 
 ### pool.update
@@ -163,16 +226,26 @@ type create = (table: string) => <Record, Id>(record: Partial<Record>) => Observ
 Create a new record in a specific table.
 
 ```typescript
-pool.update('app_user')(4, {username: 'thinh', displayName: 'Thinh Tran'});
+pool
+  .update('app_user')(4, {username: 'thinh', displayName: 'Thinh Tran'})
+  .subscribe({
+    next: () => {
+      console.log('done');
+    },
+  });
 // Generated query
 // UPDATE app_user SET username=$2,displayName=$3 WHERE id = $1
 // Params: [4, 'thinh', 'Thinh Tran']
 // in case the primary key column is named 'userId'
-pool.update('app_user')(4, {username: 'thinh', displayName: 'Thinh Tran'}, 'userId');
+pool
+  .update('app_user')(4, {username: 'thinh', displayName: 'Thinh Tran'}, 'userId')
+  .subscribe({
+    next: () => {
+      console.log('done');
+    },
+  });
 
-type update = (
-  table: string,
-) => <Record, Id>(id: Id, updatedData: Partial<Record>, idField?: string) => Observable<void>;
+type update = (table: string) => <Record, Id>(id: Id, updatedData: Partial<Record>, idField?: string) => Promise<void>;
 ```
 
 ### pool.remove
@@ -180,14 +253,26 @@ type update = (
 Remove a record in a specific table by id.
 
 ```typescript
-pool.remove('app_user')(4);
+pool
+  .remove('app_user')(4)
+  .subscribe({
+    next: () => {
+      console.log('done');
+    },
+  });
 // Generated query
 // DELETE FROM app_user WHERE id = $1
 // Params: [4]
 // in case the primary key column is named 'userId'
-pool.remove('app_user')(4, 'userId');
+pool
+  .remove('app_user')(4, 'userId')
+  .subscribe({
+    next: () => {
+      console.log('done');
+    },
+  });
 
-type remove = (table: string) => <Record, Id>(id: Id, idField?: string) => Observable<void>;
+type remove = (table: string) => <Record, Id>(id: Id, idField?: string) => Promise<void>;
 ```
 
 ### pool.executeTransaction
@@ -195,14 +280,15 @@ type remove = (table: string) => <Record, Id>(id: Id, idField?: string) => Obser
 Run transaction. ExtendedPoolClient has the similar extended functions like Pool. In case something wrong happens, the transaction will automatically be rolled back.
 
 ```typescript
-pool.executeTransaction((client) => of({}).pipe(
-    switchMap(() => client.update('app_user')(4, {username: 'thinh', displayName: 'Thinh Tran'}),
+pool.executeTransaction(async (client) =>
+  of({}).pipe(
+    switchMap(() => client.update('app_user')(4, {username: 'thinh', displayName: 'Thinh Tran'})),
     switchMap(() => client.update('app_user')(5, {username: 'test', displayName: 'Test'})),
-    map(() => {
+    switchMap(() => {
       // do nothing
-    })
-  );
-));
+    }),
+  ),
+);
 
-type executeTransaction = (transaction: (client: ExtendedPoolClient) => Observable<void>) => Observable<void>;
+type executeTransaction = (transaction: (client: ExtendedPoolClient) => Promise<void>) => Promise<void>;
 ```

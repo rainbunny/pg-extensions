@@ -61,11 +61,30 @@ writePool.on('connect', () => console.log('Connected to write database'));
 
 ### pool.executeQuery (Promise)
 
-Use this function instead of the original **pool.query** function. It can use named parameters and resolve the problem of camelCase property name in the query result.
+Use this function instead of the original **pool.query** function.
 
 ```typescript
-pool.executeQuery({
-  queryText: 'select * from app_user where createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)',
+const result = await pool.executeQuery({
+  queryText: 'select id, username, createAt as "createdAt" from app_user where id = :id',
+  // optional params
+  params: {
+    id: '1',
+  },
+});
+// Generated query
+// select id, username, createAt as "createdAt" from app_user where id = $1
+// Params: ['1'];
+// result = [{id: '1', username: 'admin', createdAt: 1617869191488}]
+
+type executeQuery = <T>(query: DbQuery) => Promise<T[]>;
+```
+
+You may query a table. It can use named parameters and resolve the problem of camelCase property name in the query result.
+
+```typescript
+const result = await pool.executeQuery({
+  table: 'app_user',
+  whereClause: 'createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)', // optional
   fields: ['id', 'username', 'createdAt'], // optional
   sortBy: ['username|ASC', 'createdAt|DESC'], // optional
   pageIndex: 2, // optional
@@ -77,12 +96,9 @@ pool.executeQuery({
   },
 });
 // Generated query
-// SELECT id as "id",username as "username",createdAt as "createdAt" FROM (select * from app_user where createdAt >= $4 AND tsv @@ to_tsquery($3)) AS T ORDER BY username ASC, createdAt DESC LIMIT $1 OFFSET $2
+// SELECT id as "id",username as "username",createdAt as "createdAt" FROM app_user WHERE createdAt >= $4 AND tsv @@ to_tsquery($3) ORDER BY username ASC, createdAt DESC LIMIT $1 OFFSET $2
 // Params: [5, 10, 'admin', 1617869191488];
-// Return
-// [{id: 1, username: 'admin', createdAt: 1617869191488}]
-
-type executeQuery = <T>(query: DbQuery) => Promise<T[]>;
+// result = [{id: 1, username: 'admin', createdAt: 1617869191488}]
 ```
 
 [Full documentation](/pg-extensions-Promise.md)
@@ -116,32 +132,56 @@ pool.on('connect', () => console.log('Connected to database'));
 
 ### pool.executeQuery (Observable)
 
-Use this function instead of the original **pool.query** function. It can use named parameters and resolve the problem of camelCase property name in the query result.
+Use this function instead of the original **pool.query** function.
 
 ```typescript
-pool.executeQuery({
-  queryText: 'select * from app_user where createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)',
-  fields: ['id', 'username', 'createdAt'], // optional
-  sortBy: ['username|ASC', 'createdAt|DESC'], // optional
-  pageIndex: 2, // optional
-  rowsPerPage: 5, // optional
-  // optional
-  params: {
-    searchTerm: 'admin',
-    createdAt: 1617869191488,
-  },
-});
+pool
+  .executeQuery({
+    queryText: 'select id, username, createAt as "createdAt" from app_user where id = :id',
+    // optional params
+    params: {
+      id: '1',
+    },
+  })
+  .subscribe({
+    next: (result) => {
+      console.log(result);
+    },
+  });
 // Generated query
-// SELECT id as "id",username as "username",createdAt as "createdAt" FROM (select * from app_user where createdAt >= $4 AND tsv @@ to_tsquery($3)) AS T ORDER BY username ASC, createdAt DESC LIMIT $1 OFFSET $2
-// Params: [5, 10, 'admin', 1617869191488];
-// Return
-// [{id: 1, username: 'admin', createdAt: 1617869191488}]
+// select id, username, createAt as "createdAt" from app_user where id = $1
+// Params: ['1'];
+// result = [{id: '1', username: 'admin', createdAt: 1617869191488}]
 
-type executeQuery = <T>(query: DbQuery) => Observable<T[]>;
+type executeQuery = <T>(query: DbQuery) => Promise<T[]>;
+```
+
+You may query a table. It can use named parameters and resolve the problem of camelCase property name in the query result.
+
+```typescript
+pool
+  .executeQuery({
+    table: 'app_user',
+    whereClause: 'createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)', // optional
+    fields: ['id', 'username', 'createdAt'], // optional
+    sortBy: ['username|ASC', 'createdAt|DESC'], // optional
+    pageIndex: 2, // optional
+    rowsPerPage: 5, // optional
+    // optional
+    params: {
+      searchTerm: 'admin',
+      createdAt: 1617869191488,
+    },
+  })
+  .subscribe({
+    next: (result) => {
+      console.log(result);
+    },
+  });
+// Generated query
+// SELECT id as "id",username as "username",createdAt as "createdAt" FROM app_user WHERE createdAt >= $4 AND tsv @@ to_tsquery($3) ORDER BY username ASC, createdAt DESC LIMIT $1 OFFSET $2
+// Params: [5, 10, 'admin', 1617869191488];
+// result = [{id: 1, username: 'admin', createdAt: 1617869191488}]
 ```
 
 [Full documentation](/pg-extensions-Observable.md)
-
-## How to publish a typescript package to npm
-
-Follow [this article](https://itnext.io/step-by-step-building-and-publishing-an-npm-typescript-package-44fe7164964c).
