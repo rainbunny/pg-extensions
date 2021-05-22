@@ -19,10 +19,12 @@ describe('implementRxExecutor', () => {
         queryText,
         params,
       })
-      .subscribe((result) => {
-        expect(pool.query as unknown as jest.Mock).toBeCalledWith('select * from app_user where id = $1', [1]);
-        expect(result).toEqual(mockResult);
-        done();
+      .subscribe({
+        next: (result) => {
+          expect(pool.query as unknown as jest.Mock).toBeCalledWith('select * from app_user where id = $1', [1]);
+          expect(result).toEqual(mockResult);
+          done();
+        },
       });
   });
 
@@ -36,13 +38,15 @@ describe('implementRxExecutor', () => {
         queryText,
         params,
       })
-      .subscribe((result) => {
-        expect(pool.query as unknown as jest.Mock).toBeCalledWith(
-          'SELECT COUNT(*) FROM (select * from app_user where id = $1) AS T',
-          [1],
-        );
-        expect(result).toEqual(4);
-        done();
+      .subscribe({
+        next: (result) => {
+          expect(pool.query as unknown as jest.Mock).toBeCalledWith(
+            'SELECT COUNT(*) FROM (select * from app_user where id = $1) AS T',
+            [1],
+          );
+          expect(result).toEqual(4);
+          done();
+        },
       });
   });
 
@@ -51,13 +55,15 @@ describe('implementRxExecutor', () => {
     (pool.query as unknown as jest.Mock).mockReturnValue(Promise.resolve({rows: mockResult}));
     pool
       .getById('app_user')('abc', ['id', 'username'])
-      .subscribe((result) => {
-        expect(pool.query as unknown as jest.Mock).toBeCalledWith(
-          'SELECT id as "id",username as "username" FROM app_user WHERE id = $1',
-          ['abc'],
-        );
-        expect(result).toEqual({id: 4, username: 'user'});
-        done();
+      .subscribe({
+        next: (result) => {
+          expect(pool.query as unknown as jest.Mock).toBeCalledWith(
+            'SELECT id as "id",username as "username" FROM app_user WHERE id = $1',
+            ['abc'],
+          );
+          expect(result).toEqual({id: 4, username: 'user'});
+          done();
+        },
       });
   });
 
@@ -65,13 +71,15 @@ describe('implementRxExecutor', () => {
     (pool.query as unknown as jest.Mock).mockReturnValue(Promise.resolve({rows: []}));
     pool
       .getById('app_user')('abc', ['id', 'username'])
-      .subscribe((result) => {
-        expect(pool.query as unknown as jest.Mock).toBeCalledWith(
-          'SELECT id as "id",username as "username" FROM app_user WHERE id = $1',
-          ['abc'],
-        );
-        expect(result).toBeUndefined();
-        done();
+      .subscribe({
+        next: (result) => {
+          expect(pool.query as unknown as jest.Mock).toBeCalledWith(
+            'SELECT id as "id",username as "username" FROM app_user WHERE id = $1',
+            ['abc'],
+          );
+          expect(result).toBeUndefined();
+          done();
+        },
       });
   });
 
@@ -80,13 +88,15 @@ describe('implementRxExecutor', () => {
     (pool.query as unknown as jest.Mock).mockReturnValue(Promise.resolve({rows: mockResult}));
     pool
       .getById('app_user')('abc', ['id', 'username'], 'userId')
-      .subscribe((result) => {
-        expect(pool.query as unknown as jest.Mock).toBeCalledWith(
-          'SELECT id as "id",username as "username" FROM app_user WHERE userId = $1',
-          ['abc'],
-        );
-        expect(result).toEqual({id: 4, username: 'user'});
-        done();
+      .subscribe({
+        next: (result) => {
+          expect(pool.query as unknown as jest.Mock).toBeCalledWith(
+            'SELECT id as "id",username as "username" FROM app_user WHERE userId = $1',
+            ['abc'],
+          );
+          expect(result).toEqual({id: 4, username: 'user'});
+          done();
+        },
       });
   });
 
@@ -95,13 +105,15 @@ describe('implementRxExecutor', () => {
     (pool.query as unknown as jest.Mock).mockReturnValue(Promise.resolve({rows: mockResult}));
     pool
       .create('app_user')({username: 'thinh', displayName: 'Thinh Tran'})
-      .subscribe((result) => {
-        expect(pool.query as unknown as jest.Mock).toBeCalledWith(
-          'INSERT INTO app_user(username,displayName) VALUES($1,$2) RETURNING id',
-          ['thinh', 'Thinh Tran'],
-        );
-        expect(result).toEqual(4);
-        done();
+      .subscribe({
+        next: (result) => {
+          expect(pool.query as unknown as jest.Mock).toBeCalledWith(
+            'INSERT INTO app_user(username,displayName) VALUES($1,$2) RETURNING id',
+            ['thinh', 'Thinh Tran'],
+          );
+          expect(result).toEqual(4);
+          done();
+        },
       });
   });
 
@@ -110,12 +122,14 @@ describe('implementRxExecutor', () => {
     (pool.query as unknown as jest.Mock).mockReturnValue(Promise.resolve({rows: mockResult}));
     pool
       .update('app_user')(4, {username: 'thinh', displayName: 'Thinh Tran'})
-      .subscribe(() => {
-        expect(pool.query as unknown as jest.Mock).toBeCalledWith(
-          'UPDATE app_user SET username=$2,displayName=$3 WHERE id = $1',
-          [4, 'thinh', 'Thinh Tran'],
-        );
-        done();
+      .subscribe({
+        next: () => {
+          expect(pool.query as unknown as jest.Mock).toBeCalledWith(
+            'UPDATE app_user SET username=$2,displayName=$3 WHERE id = $1',
+            [4, 'thinh', 'Thinh Tran'],
+          );
+          done();
+        },
       });
   });
 
@@ -124,12 +138,14 @@ describe('implementRxExecutor', () => {
     (pool.query as unknown as jest.Mock).mockReturnValue(Promise.resolve({rows: mockResult}));
     pool
       .update('app_user')(4, {username: 'thinh', displayName: 'Thinh Tran'}, 'userId')
-      .subscribe(() => {
-        expect(pool.query as unknown as jest.Mock).toBeCalledWith(
-          'UPDATE app_user SET username=$2,displayName=$3 WHERE userId = $1',
-          [4, 'thinh', 'Thinh Tran'],
-        );
-        done();
+      .subscribe({
+        next: () => {
+          expect(pool.query as unknown as jest.Mock).toBeCalledWith(
+            'UPDATE app_user SET username=$2,displayName=$3 WHERE userId = $1',
+            [4, 'thinh', 'Thinh Tran'],
+          );
+          done();
+        },
       });
   });
 

@@ -38,6 +38,28 @@ describe('implementExecutor', () => {
     expect(result).toEqual(4);
   });
 
+  it('runs count correctly with table query', async () => {
+    const mockResult = [{count: 4}];
+    (pool.query as unknown as jest.Mock).mockReturnValue(Promise.resolve({rows: mockResult}));
+    const result = await pool.count({
+      table: 'app_user',
+      whereClause: 'createdAt >= :createdAt AND tsv @@ to_tsquery(:searchTerm)', // optional
+      fields: ['id', 'username', 'createdAt'],
+      sortBy: ['username|ASC', 'createdAt|DESC'],
+      pageIndex: 2,
+      rowsPerPage: 5,
+      params: {
+        searchTerm: 'admin',
+        createdAt: 1617869191488,
+      },
+    });
+    expect(pool.query as unknown as jest.Mock).toBeCalledWith(
+      'SELECT COUNT(*) FROM (SELECT * FROM app_user WHERE createdAt >= $2 AND tsv @@ to_tsquery($1)) AS T',
+      ['admin', 1617869191488],
+    );
+    expect(result).toEqual(4);
+  });
+
   it('runs getById and returns a record', async () => {
     const mockResult = [{id: 4, username: 'user'}];
     (pool.query as unknown as jest.Mock).mockReturnValue(Promise.resolve({rows: mockResult}));
@@ -62,9 +84,9 @@ describe('implementExecutor', () => {
   it('runs getById with a specific id field', async () => {
     const mockResult = [{id: 4, username: 'user'}];
     (pool.query as unknown as jest.Mock).mockReturnValue(Promise.resolve({rows: mockResult}));
-    const result = await pool.getById('app_user')('abc', ['id', 'username'], 'userId');
+    const result = await pool.getById('app_user')('abc', ['userId', 'username'], 'userId');
     expect(pool.query as unknown as jest.Mock).toBeCalledWith(
-      'SELECT id as "id",username as "username" FROM app_user WHERE userId = $1',
+      'SELECT userId as "userId",username as "username" FROM app_user WHERE userId = $1',
       ['abc'],
     );
     expect(result).toEqual({id: 4, username: 'user'});
