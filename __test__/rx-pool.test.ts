@@ -53,11 +53,8 @@ describe('RxPool', () => {
             }),
           );
       })
-      .subscribe(
-        () => {
-          // do nothing
-        },
-        () => {
+      .subscribe({
+        error: () => {
           expect(mockClient.query).toHaveBeenNthCalledWith(1, 'BEGIN');
           expect(mockClient.query).toHaveBeenNthCalledWith(2, 'SELECT id, username FROM app_user where id = $1', [1]);
           expect(mockClient.query).toHaveBeenNthCalledWith(3, 'ROLLBACK');
@@ -65,7 +62,7 @@ describe('RxPool', () => {
           expect(mockClient.release).toBeCalledTimes(1);
           done();
         },
-      );
+      });
   });
 
   it('initializes ok with no config', async () => {
