@@ -1,43 +1,61 @@
 import type {DbQuery} from './interfaces';
 
+interface QueryBuilder {
+  query: DbQuery;
+  finalQueryText: string;
+  currentParamInx: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  paramsArr: any[];
+}
+
 const buildMainQuery = ({table, whereClause, fields}: DbQuery): string => {
   const fieldsClause = fields ? fields.map((field) => `${field} as "${field}"`).join(',') : '';
-  return `SELECT ${fieldsClause || '*'} FROM ${table}${whereClause ? ` WHERE ${whereClause}` : ''}`;
+  const whereQuery = whereClause ? ` WHERE ${whereClause}` : '';
+  return `SELECT ${fieldsClause || '*'} FROM ${table}${whereQuery}`;
 };
 
 const buildSortBy = ({sortBy}: DbQuery): string =>
   sortBy && sortBy.length > 0 ? ` ORDER BY ${sortBy.map((m) => m.replace('|', ' ')).join(', ')}` : '';
 
-/** build postgres sql query & params */
-export const buildQuery = (query: DbQuery): {queryText: string; params?: unknown[]} => {
-  const {pageIndex, rowsPerPage, params} = query;
+const buildQueryWithoutParams = (queryBuilder: QueryBuilder): QueryBuilder => {
+  const {query, paramsArr} = queryBuilder;
+  const {pageIndex, rowsPerPage} = query;
   let {limit, offset} = query;
+  let {currentParamInx} = queryBuilder;
   let finalQueryText: string;
-  let paramInx = 1;
-  const paramsArr = [];
 
   if (query.queryText) {
     finalQueryText = query.queryText;
   } else {
     finalQueryText = buildMainQuery(query) + buildSortBy(query);
-    // add limit/offset
     if (typeof pageIndex === 'number' && typeof rowsPerPage === 'number') {
       limit = rowsPerPage;
       offset = rowsPerPage * pageIndex;
     }
     if (typeof limit === 'number') {
-      finalQueryText += ` LIMIT $${paramInx}`;
+      finalQueryText += ` LIMIT $${currentParamInx}`;
       paramsArr.push(limit);
-      paramInx += 1;
+      currentParamInx += 1;
     }
     if (typeof offset === 'number') {
-      finalQueryText += ` OFFSET $${paramInx}`;
+      finalQueryText += ` OFFSET $${currentParamInx}`;
       paramsArr.push(offset);
-      paramInx += 1;
+      currentParamInx += 1;
     }
   }
 
-  // assign params
+  return {
+    query,
+    finalQueryText,
+    currentParamInx,
+    paramsArr,
+  };
+};
+
+const addParams = (queryBuilder: QueryBuilder): QueryBuilder => {
+  const {query, paramsArr} = queryBuilder;
+  let {finalQueryText, currentParamInx} = queryBuilder;
+  const {params} = query;
   if (params) {
     Object.keys(params).forEach((paramName) => {
       const splitQueryArr = finalQueryText.split(`:${paramName}`);
@@ -45,15 +63,28 @@ export const buildQuery = (query: DbQuery): {queryText: string; params?: unknown
         let newQuery = splitQueryArr[0];
         splitQueryArr.forEach((part, index) => {
           if (index > 0) {
-            newQuery += `$${paramInx}${part}`;
+            newQuery += `$${currentParamInx}${part}`;
             paramsArr.push(params[paramName]);
-            paramInx += 1;
+            currentParamInx += 1;
           }
         });
         finalQueryText = newQuery;
       }
     });
   }
+  return {
+    query,
+    finalQueryText,
+    currentParamInx,
+    paramsArr,
+  };
+};
+
+/** build postgres sql query & params */
+export const buildQuery = (query: DbQuery): {queryText: string; params?: unknown[]} => {
+  const {finalQueryText, paramsArr} = addParams(
+    buildQueryWithoutParams({query, finalQueryText: '', currentParamInx: 1, paramsArr: []}),
+  );
 
   return {
     queryText: finalQueryText,

@@ -180,6 +180,23 @@ describe('buildQuery', () => {
       }
     `);
   });
+
+  it('generates a query with query text', () => {
+    const query = buildQuery({
+      queryText: 'select id, username, createAt as "createdAt" from app_user where id = :id',
+      params: {
+        id: '1',
+      },
+    });
+    expect(query).toMatchInlineSnapshot(`
+      Object {
+        "params": Array [
+          "1",
+        ],
+        "queryText": "select id, username, createAt as \\"createdAt\\" from app_user where id = $1",
+      }
+    `);
+  });
 });
 
 export {};
