@@ -7,7 +7,7 @@ Use pg-extensions with Observable
 Initialize the pool from this package instead of the original pool. It's an extended pool which has same functionalities as the original one with extended functions.
 
 ```typescript
-import {RxPool} from '@rainbunny/pg-extensions';
+import {RxPool} from '@tqt/pg-extensions';
 
 const pool = new RxPool({
   host: process.env.POSTGRES_HOST,

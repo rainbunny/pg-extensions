@@ -7,7 +7,7 @@ Use pg-extensions with Promise
 Initialize the pool from this package instead of the original pool. It's an extended pool which has same functionalities as the original one with extended functions.
 
 ```typescript
-import {Pool} from '@rainbunny/pg-extensions';
+import {Pool} from '@tqt/pg-extensions';
 
 const pool = new Pool({
   host: process.env.POSTGRES_HOST,

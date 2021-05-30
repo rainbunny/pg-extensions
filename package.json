@@ -1,7 +1,7 @@
 {
   "author": "Thinh Tran",
   "bugs": {
-    "url": "https://github.com/rainbunny/pg-extensions/issues"
+    "url": "https://github.com/thinhtran3588/pg-extensions/issues"
   },
   "dependencies": {
     "pg": "^8.6.0",
@@ -36,7 +36,7 @@
   "files": [
     "lib/**/*"
   ],
-  "homepage": "https://github.com/rainbunny/pg-extensions#readme",
+  "homepage": "https://github.com/thinhtran3588/pg-extensions#readme",
   "keywords": [
     "pg",
     "postgres",
@@ -45,10 +45,10 @@
   ],
   "license": "MIT",
   "main": "lib/index.js",
-  "name": "@rainbunny/pg-extensions",
+  "name": "@tqt/pg-extensions",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rainbunny/pg-extensions.git"
+    "url": "git+https://github.com/thinhtran3588/pg-extensions.git"
   },
   "scripts": {
     "build": "rm -r -f lib && babel src --out-dir lib --extensions \".ts\" --source-maps inline --copy-files && tsc --project tsconfig.definition.json",

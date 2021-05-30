@@ -2,30 +2,30 @@
 
 Add more functions into the original pg package such as query builder, extended pool, extended client. It helps us to interact with Postgres easier then using an external ORM. The package is written in Typescript.
 
-![npm (scoped)](https://img.shields.io/npm/v/@rainbunny/pg-extensions)
+![npm (scoped)](https://img.shields.io/npm/v/@thinhtran3588/pg-extensions)
 ![Typed with TypeScript](https://flat.badgen.net/badge/icon/Typed?icon=typescript&label&labelColor=blue&color=555555)
 ![Eslint](https://badgen.net/badge/eslint/airbnb/ff5a5f?icon=airbnb)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest)
-![GitHub](https://img.shields.io/github/license/rainbunny/pg-extensions)
-![GitHub repo size](https://img.shields.io/github/repo-size/rainbunny/pg-extensions)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/rainbunny/pg-extensions)
+![GitHub](https://img.shields.io/github/license/thinhtran3588/pg-extensions)
+![GitHub repo size](https://img.shields.io/github/repo-size/thinhtran3588/pg-extensions)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/thinhtran3588/pg-extensions)
 
 **main:**
-![CI-main](https://github.com/rainbunny/pg-extensions/workflows/CI-main/badge.svg)
-[![codecov](https://codecov.io/gh/rainbunny/pg-extensions/branch/main/graph/badge.svg)](https://codecov.io/gh/rainbunny/pg-extensions)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rainbunny_pg-extensions&metric=alert_status)](https://sonarcloud.io/dashboard?id=rainbunny_pg-extensions)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=rainbunny_pg-extensions&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=rainbunny_pg-extensions)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=rainbunny_pg-extensions&metric=security_rating)](https://sonarcloud.io/dashboard?id=rainbunny_pg-extensions)
+![CI-main](https://github.com/thinhtran3588/pg-extensions/workflows/CI-main/badge.svg)
+[![codecov](https://codecov.io/gh/thinhtran3588/pg-extensions/branch/main/graph/badge.svg)](https://codecov.io/gh/thinhtran3588/pg-extensions)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=thinhtran3588_pg-extensions&metric=alert_status)](https://sonarcloud.io/dashboard?id=thinhtran3588_pg-extensions)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=thinhtran3588_pg-extensions&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=thinhtran3588_pg-extensions)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=thinhtran3588_pg-extensions&metric=security_rating)](https://sonarcloud.io/dashboard?id=thinhtran3588_pg-extensions)
 
 **develop:**
-![CI-develop](https://github.com/rainbunny/pg-extensions/workflows/CI-develop/badge.svg?branch=develop)
-[![codecov](https://codecov.io/gh/rainbunny/pg-extensions/branch/develop/graph/badge.svg)](https://codecov.io/gh/rainbunny/pg-extensions/branch/develop)
+![CI-develop](https://github.com/thinhtran3588/pg-extensions/workflows/CI-develop/badge.svg?branch=develop)
+[![codecov](https://codecov.io/gh/thinhtran3588/pg-extensions/branch/develop/graph/badge.svg)](https://codecov.io/gh/thinhtran3588/pg-extensions/branch/develop)
 
 ## Installation
 
 ```bash
-yarn add @rainbunny/pg-extensions
+yarn add @tqt/pg-extensions
 ```
 
 ## How to use
@@ -35,7 +35,7 @@ Initialize the pool from this package instead of the original pool. It's an exte
 ## Promise style
 
 ```typescript
-import {Pool} from '@rainbunny/pg-extensions';
+import {Pool} from '@thinhtran3588/pg-extensions';
 
 const writePool = new Pool({
   host: process.env.POSTGRES_HOST,
@@ -106,7 +106,7 @@ const result = await pool.executeQuery({
 ## Observable style
 
 ```typescript
-import {RxPool} from '@rainbunny/pg-extensions';
+import {RxPool} from '@thinhtran3588/pg-extensions';
 
 const pool = new RxPool({
   host: process.env.POSTGRES_HOST,
