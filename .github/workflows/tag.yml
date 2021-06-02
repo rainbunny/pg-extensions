@@ -1,16 +1,15 @@
-name: CI-main
+name: CI-tag
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the main branch
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    tags:
+      - 'v*'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
+  publish:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -43,14 +42,12 @@ jobs:
       - name: Build
         run: yarn build
 
-      - name: Upload test coverage
-        run: bash <(curl -s https://codecov.io/bash)
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: Publish to npm
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+          npm publish --access public
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Slack Notification Finish
         uses: act10ns/slack@v1
