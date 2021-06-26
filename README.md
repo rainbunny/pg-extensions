@@ -87,15 +87,18 @@ Use this function instead of the original **pool.query** function.
 
 ```typescript
 const result = await pool.executeQuery({
-  queryText: 'select id, username, createAt as "createdAt" from app_user where id = :id',
-  // optional params
+  queryText: 'select * from app_user',
+  whereClause: 'createAt >= :createAtFrom',
+  fields: ['id', 'username', 'createdAt'],
+  limit: 10,
+  offset: 20,
   params: {
-    id: '1',
+    createAtFrom: '1624679104000',
   },
 });
 // Generated query
-// select id, username, createAt as "createdAt" from app_user where id = $1
-// Params: ['1'];
+// SELECT id as "id",username as "username",createdAt as "createdAt" FROM (select * from app_user) T WHERE createAt > $3 LIMIT $1 OFFSET $2
+// Params: ['1617869191488'];
 // result = [{id: '1', username: 'admin', createdAt: 1617869191488}]
 
 type executeQuery = <T>(query: DbQuery) => Promise<T[]>;
@@ -142,6 +145,27 @@ const result = await pool.executeQuery({
 // SELECT id as "id",username as "username",createdAt as "createdAt" FROM app_user WHERE createdAt >= $4 AND tsv @@ to_tsquery($3) ORDER BY username ASC, createdAt DESC LIMIT $1 OFFSET $2
 // Params: [5, 10, 'admin', 1617869191488];
 // result = [{id: 1, username: 'admin', createdAt: 1617869191488}]
+```
+
+For a raw query containing multiple queries, commands, just use
+
+```typescript
+const result = await pool.executeQuery({
+  queryText: `
+      DELETE FROM app_user where id = :id1;
+      DELETE FROM app_user where id = :id2;
+    `,
+  params: {
+    id1: '1',
+    id2: '2',
+  },
+});
+// Generated query
+// DELETE FROM app_user where id = $1;
+// DELETE FROM app_user where id = $2;
+// Params: ['1', '2'];
+
+type executeQuery = <T>(query: DbQuery) => Promise<T[]>;
 ```
 
 ### Count (Promise)
@@ -376,6 +400,29 @@ pool
 // SELECT id as "id",username as "username",createdAt as "createdAt" FROM app_user WHERE createdAt >= $4 AND tsv @@ to_tsquery($3) ORDER BY username ASC, createdAt DESC LIMIT $1 OFFSET $2
 // Params: [5, 10, 'admin', 1617869191488];
 // result = [{id: 1, username: 'admin', createdAt: 1617869191488}]
+```
+
+For a raw query containing multiple queries, commands, just use
+
+```typescript
+pool
+  .executeQuery({
+    queryText: `
+      DELETE FROM app_user where id = :id1;
+      DELETE FROM app_user where id = :id2;
+    `,
+    params: {
+      id1: '1',
+      id2: '2',
+    },
+  })
+  .subscribe({
+    next: () => {},
+  });
+// Generated query
+// DELETE FROM app_user where id = $1;
+// DELETE FROM app_user where id = $2;
+// Params: ['1', '2'];
 ```
 
 ### Count (Observable)

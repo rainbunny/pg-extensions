@@ -183,17 +183,49 @@ describe('buildQuery', () => {
 
   it('generates a query with query text', () => {
     const query = buildQuery({
-      queryText: 'select id, username, createAt as "createdAt" from app_user where id = :id',
+      queryText: 'select * from app_user',
+      whereClause: 'createAt > :createAtFrom',
       params: {
-        id: '1',
+        createAtFrom: '1624679104000',
+      },
+      fields: ['id', 'username', 'createdAt'],
+      limit: 10,
+      offset: 20,
+    });
+    expect(query).toMatchInlineSnapshot(`
+      Object {
+        "params": Array [
+          10,
+          20,
+          "1624679104000",
+        ],
+        "queryText": "SELECT id as \\"id\\",username as \\"username\\",createdAt as \\"createdAt\\" FROM (select * from app_user) T WHERE createAt > $3 LIMIT $1 OFFSET $2",
+      }
+    `);
+  });
+
+  it('generates multiple queries', () => {
+    const queryText = `
+      DELETE FROM app_user where id = :id1;
+      DELETE FROM app_user where id = :id2;
+    `;
+    const query = buildQuery({
+      queryText,
+      params: {
+        id1: '1',
+        id2: '2',
       },
     });
     expect(query).toMatchInlineSnapshot(`
       Object {
         "params": Array [
           "1",
+          "2",
         ],
-        "queryText": "select id, username, createAt as \\"createdAt\\" from app_user where id = $1",
+        "queryText": "
+            DELETE FROM app_user where id = $1;
+            DELETE FROM app_user where id = $2;
+          ",
       }
     `);
   });

@@ -8,10 +8,14 @@ interface QueryBuilder {
   paramsArr: any[];
 }
 
-const buildMainQuery = ({table, whereClause, fields}: DbQuery): string => {
+const buildMainQuery = ({table, whereClause, fields, queryText}: DbQuery): string => {
   const fieldsClause = fields ? fields.map((field) => `${field} as "${field}"`).join(',') : '';
   const whereQuery = whereClause ? ` WHERE ${whereClause}` : '';
-  return `SELECT ${fieldsClause || '*'} FROM ${table}${whereQuery}`;
+  if (!fieldsClause && !whereClause && !table) {
+    return queryText;
+  }
+  const tableFromQueryText = `(${queryText}) T`;
+  return `SELECT ${fieldsClause || '*'} FROM ${table || tableFromQueryText}${whereQuery}`;
 };
 
 const buildSortBy = ({sortBy}: DbQuery): string =>
@@ -23,8 +27,9 @@ const buildQueryWithoutParams = (queryBuilder: QueryBuilder): QueryBuilder => {
   let {limit, offset} = query;
   let {currentParamInx} = queryBuilder;
   let finalQueryText: string;
+  const areMultipleQueries = query.queryText && query.queryText.split(';').filter((q) => q).length > 1;
 
-  if (query.queryText) {
+  if (areMultipleQueries) {
     finalQueryText = query.queryText;
   } else {
     finalQueryText = buildMainQuery(query) + buildSortBy(query);
